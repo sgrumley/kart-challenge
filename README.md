@@ -8,6 +8,7 @@ make run
 make seed
 
 # WIP duplicate keys within the same file are causing batches to fail
+# the coupon files need to be unzipped into a root folder named coupons/
 make process-coupons
 ```
 
