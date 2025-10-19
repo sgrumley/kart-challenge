@@ -50,7 +50,7 @@ func main() {
 	defer pgxpool.Close()
 
 	uploader := NewUploader(pgxpool)
-	couponFiles := []string{"couponbase1", "couponbase2", "couponbase3"}
+	couponFiles := []string{"ucouponbase1", "ucouponbase2", "ucouponbase3"}
 	uploader.processFiles(couponFiles)
 
 	fmt.Println("✓ All coupon files processed")

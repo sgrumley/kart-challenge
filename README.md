@@ -7,8 +7,14 @@ make run
 # seed the database with some basic data for the endpoints to work
 make seed
 
-# WIP duplicate keys within the same file are causing batches to fail
 # the coupon files need to be unzipped into a root folder named coupons/
+# preprocess the data by removing duplicates within each file
+# in ./coupons/ run:
+sort -u couponbase1 > ucouponbase1
+sort -u couponbase2 > ucouponbase2
+sort -u couponbase3 > ucouponbase3
+
+# then from root dir
 make process-coupons
 ```
 
