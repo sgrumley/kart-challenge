@@ -1,0 +1,45 @@
+services:
+  server:
+    container_name: kart_challenge_server
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.server
+    env_file:
+      - compose.env
+    restart: always
+    depends_on:
+      - postgres
+      - migrate
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:16.4
+    restart: always
+    container_name: "kart_challenge_postgres"
+    healthcheck:
+      test: pg_isready -U ${DB_USER}
+    env_file:
+      - compose.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresVolume:/var/lib/postgresql/data
+      - ./database/create-db.sh:/docker-entrypoint-initdb.d/create-db.sh
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ./database/Dockerfile.migration
+    restart: on-failure
+    container_name: "kart_challenge_migrate"
+    env_file:
+     - compose.env
+    depends_on:
+      - postgres
+    command: ["postgres", "host=kart_challenge_postgres port=5432 user=dbuser password=dbpass dbname=kart_challenge sslmode=disable", "up"]
+    volumes:
+      - ./database/migrations:/migrations:ro
+
+volumes:
+  postgresVolume:

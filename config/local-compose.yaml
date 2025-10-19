@@ -1,0 +1,14 @@
+database:
+  postgres:
+    conn:
+      user: dbuser
+      pass: dbpass
+      name: kart_challenge
+      host: kart_challenge_postgres
+      port: 5432
+      useSSL: false
+    conf:
+      maxOpenConns: 6
+      idleOpenConns: 4
+      maxLifetimeConns: 1700s
+
