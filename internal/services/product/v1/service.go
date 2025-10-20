@@ -66,7 +66,6 @@ func (s *ProductService) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ProductService) ListProducts(w http.ResponseWriter, r *http.Request) {
-	// TODO: consider pagination
 	ctx := r.Context()
 
 	products, _ := s.store.ListProducts(ctx)

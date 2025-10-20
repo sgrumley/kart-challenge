@@ -32,7 +32,6 @@ func jsonError(w http.ResponseWriter, status int, code, msg string) {
 			Message: msg,
 		},
 	}
-	// log here
 	encErr := json.NewEncoder(w).Encode(err)
 	if encErr != nil {
 		log.Println(err)

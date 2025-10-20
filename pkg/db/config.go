@@ -8,10 +8,7 @@ import (
 	"time"
 )
 
-var (
-	defaultPingTimeout = 4 * time.Second
-	sslRootCert        = "/etc/ssl/cert.pem" // Certificate path for Alpine linux. This is the default path for the ca-certificates package.
-)
+var defaultPingTimeout = 4 * time.Second
 
 // DBConfig contains all parameters needed initializing db
 type DBConfig struct {
@@ -53,9 +50,6 @@ type SQLConfig struct {
 // config to url string
 func URLForConfig(cc ConnectionConfig) string {
 	sslMode := "disable"
-	if cc.SSL {
-		sslMode = "verify-ca&sslrootcert=" + sslRootCert
-	}
 
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		url.QueryEscape(cc.Username), cc.Password, url.QueryEscape(cc.Host),
