@@ -65,6 +65,9 @@ func Test_API_Service_CreateOrder(t *testing.T) {
 				SetFunc: func(key string) {},
 			},
 			storeMock: &OrderStorableMock{
+				CheckCouponFunc: func(ctx context.Context, coupon string) bool {
+					return true
+				},
 				CreateOrderFunc: func(ctx context.Context, order models.Order) (models.Order, error) {
 					return models.Order{
 						ID: "12300000-0000-0000-0000-000000000000",
@@ -150,10 +153,10 @@ func Test_API_Service_CreateOrder(t *testing.T) {
 			idemMock:  &IdempotencyStoreMock{},
 			storeMock: &OrderStorableMock{},
 			wantAssertion: func(t *testing.T, got *http.Response, storeMock *OrderStorableMock) {
-				require.Equal(t, http.StatusBadRequest, got.StatusCode)
+				require.Equal(t, http.StatusConflict, got.StatusCode)
 				require.Len(t, storeMock.CreateOrderCalls(), 0)
 				actual := testhelper.PayloadAsType[web.ErrorResponse](t, got.Body)
-				expectedError := testhelper.MapExpectedErrorResponse(web.Err500Default)
+				expectedError := testhelper.MapExpectedErrorResponse(Err409ConflictDuplicateRequest)
 				assert.Equal(t, expectedError, actual)
 			},
 		},
@@ -172,10 +175,10 @@ func Test_API_Service_CreateOrder(t *testing.T) {
 			},
 			storeMock: &OrderStorableMock{},
 			wantAssertion: func(t *testing.T, got *http.Response, storeMock *OrderStorableMock) {
-				require.Equal(t, http.StatusInternalServerError, got.StatusCode)
+				require.Equal(t, http.StatusConflict, got.StatusCode)
 				require.Len(t, storeMock.CreateOrderCalls(), 0)
 				actual := testhelper.PayloadAsType[web.ErrorResponse](t, got.Body)
-				expectedError := testhelper.MapExpectedErrorResponse(web.Err500Default)
+				expectedError := testhelper.MapExpectedErrorResponse(Err409ConflictDuplicateRequest)
 				assert.Equal(t, expectedError, actual)
 			},
 		},
@@ -204,6 +207,33 @@ func Test_API_Service_CreateOrder(t *testing.T) {
 				assert.Equal(t, expectedError, actual)
 			},
 		},
+		"error/invalid_coupon": {
+			req: func() *mapper.CreateOrderRequest {
+				def := NewDefaultOrderRequest()
+				return &def
+			},
+			headers: map[string]string{
+				"Idempotency-Key": "key",
+				"api_key":         "a-secret-key",
+			},
+			idemMock: &IdempotencyStoreMock{
+				ExistsFunc: func(key string) bool {
+					return false
+				},
+			},
+			storeMock: &OrderStorableMock{
+				CheckCouponFunc: func(ctx context.Context, coupon string) bool {
+					return false
+				},
+			},
+			wantAssertion: func(t *testing.T, got *http.Response, storeMock *OrderStorableMock) {
+				require.Equal(t, http.StatusUnprocessableEntity, got.StatusCode)
+				require.Len(t, storeMock.CreateOrderCalls(), 0)
+				actual := testhelper.PayloadAsType[web.ErrorResponse](t, got.Body)
+				expectedError := testhelper.MapExpectedErrorResponse(Err422Validation)
+				assert.Equal(t, expectedError, actual)
+			},
+		},
 		"error/store_failed": {
 			req: func() *mapper.CreateOrderRequest {
 				def := NewDefaultOrderRequest()
@@ -219,6 +249,9 @@ func Test_API_Service_CreateOrder(t *testing.T) {
 				},
 			},
 			storeMock: &OrderStorableMock{
+				CheckCouponFunc: func(ctx context.Context, coupon string) bool {
+					return true
+				},
 				CreateOrderFunc: func(ctx context.Context, order models.Order) (models.Order, error) {
 					return models.Order{}, fmt.Errorf("error")
 				},

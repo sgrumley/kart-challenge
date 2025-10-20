@@ -13,3 +13,5 @@ sql-gen:
 mock-gen:
 	go generate ./... ;
 
+test:
+	go test ./... ;
