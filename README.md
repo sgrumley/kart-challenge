@@ -18,28 +18,6 @@ sort -u couponbase3 > ucouponbase3
 make process-coupons
 ```
 
-## Changes
-### Incrementing IDs
-Using UUIDs instead of sequential IDs
-
-### API Key 
-There is too little context around what the api_key aims to achive. If it is front end facing it should be a bearer token. If it is for Third party services no valid or invalid keys have been provided
-
-### Invalid Coupon
-Returns error on invalid coupon.
-
-### Idempotency
-Very basic implementation to avoid accidental duplicate orders
-
-## Notes
-Due to time constraints several things have not been implemented
-
-### Missing Integration Test
-Ideally would have used testcontainers to test the store layer
-
-### Pagination
-Ideally pagination would be included for the ListProducts endpoint
-
 ## Requests
 
 GetProductByID
